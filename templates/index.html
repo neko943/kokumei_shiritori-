@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>国名しりとりゲーム</title>
+</head>
+<body>
+    <h1>国名しりとりbot</h1>
+    <form method="POST">
+        <label for="country">カタカナで国名を入力してください:</label>
+        <input type="text" id="country" name="player_input" required>
+        <button type="submit">送信</button>
+    </form>
+    <form action="/reset" method="get">
+        <button type="submit">リセット</button>
+    </form>
+    <p>{{ message }}</p>
+
+    <!-- 変更: コンピュータの応答を先に表示 -->
+    {% if computer_response %}
+        <p>コンピュータの応答: {{ computer_response }}</p>
+    {% endif %}
+    {% if player_input %}
+        <p>あなたの入力: {{ player_input }}</p>
+    {% endif %}
+
+    <!-- 使用済みリストの表示 -->
+    <h2>使用済みの国名</h2>
+    {% if used_countries %}
+        <ul>
+            {% for country in used_countries %}
+                <li>{{ country }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>まだ国名は使われていません。</p>
+    {% endif %}
+</body>
+</html>
