@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>国名しりとりゲーム</title>
+    <title>国名しりとりゲーム - Flaskで遊ぶ日本語しりとりWebアプリ</title>
+    
+    <!-- SEO 対策タグ -->
+    <meta name="description" content="国の名前でしりとりを楽しむ日本語対応のWebアプリ。Flask（Python）で作られた国名しりとりbotです。">
+    <meta name="keywords" content="しりとり, 国名, 日本語, Flask, Python, Webアプリ, しりとりゲーム, 国名しりとり">
+    <meta name="author" content="neko943">
+
+    <!-- SNSでシェアしたときの情報 -->
+    <meta property="og:title" content="国名しりとりゲーム">
+    <meta property="og:description" content="世界の国名でしりとりをするFlask製Webアプリ。学びながら楽しめる！">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://your-render-url.onrender.com"> <!-- 実際のURLに変更してください -->
+    <meta property="og:image" content="https://your-render-url.onrender.com/static/og-image.png"> <!-- サムネ画像があれば -->
+
+    <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
     <h1>国名しりとりbot</h1>
@@ -17,7 +31,6 @@
     </form>
     <p>{{ message }}</p>
 
-    <!-- 変更: コンピュータの応答を先に表示 -->
     {% if computer_response %}
         <p>コンピュータの応答: {{ computer_response }}</p>
     {% endif %}
@@ -25,7 +38,6 @@
         <p>あなたの入力: {{ player_input }}</p>
     {% endif %}
 
-    <!-- 使用済みリストの表示 -->
     <h2>使用済みの国名</h2>
     {% if used_countries %}
         <ul>
