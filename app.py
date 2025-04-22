@@ -228,7 +228,7 @@ def index():
         return render_template('index.html', player_input=player_input, computer_response=computer_response, message=message, used_countries=used)
 
     return render_template('index.html', message=message, used_countries=used)
-　　return render_template("index.html", message=message, used_countries=used, player_input=player_input, computer_response=computer_response, countries=countries)
+    return render_template("index.html", message=message, used_countries=used, player_input=player_input, computer_response=computer_response, countries=countries)
 
 @app.route('/reset')
 def reset():
