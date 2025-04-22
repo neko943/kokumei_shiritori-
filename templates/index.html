@@ -14,7 +14,7 @@
     <meta property="og:title" content="国名しりとりゲーム">
     <meta property="og:description" content="世界の国名でしりとりをするFlask製Webアプリ。学びながら楽しめる！">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://your-render-url.onrender.com"> <!-- 実際のURLに変更してください -->
+    <meta property="og:url" content="https://shiritori-game-ihgf.onrender.com"> <!-- 実際のURLに変更してください -->
     <meta property="og:image" content="https://your-render-url.onrender.com/static/og-image.png"> <!-- サムネ画像があれば -->
 
     <meta name="twitter:card" content="summary_large_image">
@@ -37,6 +37,33 @@
     {% if player_input %}
         <p>あなたの入力: {{ player_input }}</p>
     {% endif %}
+
+    {% if computer_response %}
+        <p>コンピュータの応答: {{ computer_response }}</p>
+    {% endif %}
+    {% if player_input %}
+        <p>あなたの入力: {{ player_input }}</p>
+    {% endif %}
+    <button type="button" onclick="toggleCountryList()">国名リストを表示</button>
+
+<div id="country-list" style="display: none; margin-top: 10px;">
+    <ul>
+        {% for country in countries %}
+            <li>{{ country }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+function toggleCountryList() {
+    const list = document.getElementById("country-list");
+    if (list.style.display === "none") {
+        list.style.display = "block";
+    } else {
+        list.style.display = "none";
+    }
+}
+</script>
 
     <h2>使用済みの国名</h2>
     {% if used_countries %}
