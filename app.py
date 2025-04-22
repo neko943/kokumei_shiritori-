@@ -173,16 +173,16 @@ def index():
 
         if player_input not in countries:
             message = "無効な国名です。"
-            return render_template('index.html', message=message, used_countries=used)
+            return render_template('index.html', message=message, used_countries=used, countries=countries)
 
         if player_input in used:
             message = "その国名はすでに使用されています。"
-            return render_template('index.html', message=message, used_countries=used)
+            return render_template('index.html', message=message, used_countries=used, countries=countries)
 
         if player_input in ["スリナム", "ギリシャ"]:
             reset_game()
             message = f"「{normalize_word(player_input)[-1]}」で始まる国が見つかりません。あなたの勝ちです！"
-            return render_template('index.html', message=message, used_countries=[])
+            return render_template('index.html', message=message, used_countries=[], countries=countries)
 
         normalized_last_char = normalize_word(player_input)[-1]
 
@@ -190,18 +190,18 @@ def index():
             if normalized_last_char == 'ン':
                 reset_game()
                 message = "あなたの負けです！"
-                return render_template('index.html', message=message, used_countries=[])
+                return render_template('index.html', message=message, used_countries=[], countries=countries)
             used.append(player_input)
             game_state["last_syllable"] = normalized_last_char
         else:
             if normalize_word(player_input)[0] != last_syllable:
                 message = f"「{last_syllable}」で始まる国名を入力してください。"
-                return render_template('index.html', message=message, used_countries=used)
+                return render_template('index.html', message=message, used_countries=used, countries=countries)
 
             if normalized_last_char == 'ン':
                 reset_game()
                 message = "あなたの負けです！"
-                return render_template('index.html', message=message, used_countries=[])
+                return render_template('index.html', message=message, used_countries=[], countries=countries)
             used.append(player_input)
             game_state["last_syllable"] = normalized_last_char
 
@@ -210,25 +210,29 @@ def index():
         if not computer_response:
             reset_game()
             message = "その国の最後の文字で始まる国が見つかりません。あなたの勝ちです！"
-            return render_template('index.html', message=message, used_countries=[])
+            return render_template('index.html', message=message, used_countries=[], countries=countries)
 
         if computer_response in ["スリナム", "ギリシャ"]:
             reset_game()
             message = f"「{normalize_word(computer_response)[-1]}」で始まる国がありません。私の勝ちです！"
-            return render_template('index.html', player_input=player_input, computer_response=computer_response, message=message, used_countries=[])
+            return render_template('index.html', player_input=player_input, computer_response=computer_response, message=message, used_countries=[], countries=countries)
 
         if normalize_word(computer_response)[-1] == 'ン':
             reset_game()
             message = "私の負けです！"
-            return render_template('index.html', player_input=player_input, computer_response=computer_response, message=message, used_countries=[])
+            return render_template('index.html', player_input=player_input, computer_response=computer_response, message=message, used_countries=[], countries=countries)
 
         used.append(computer_response)
         game_state["last_syllable"] = normalize_word(computer_response)[-1]
 
-        return render_template('index.html', player_input=player_input, computer_response=computer_response, message=message, used_countries=used)
+        return render_template('index.html',
+                               player_input=player_input,
+                               computer_response=computer_response,
+                               message=message,
+                               used_countries=used,
+                               countries=countries)
 
-    return render_template('index.html', message=message, used_countries=used)
-    return render_template("index.html", message=message, used_countries=used, player_input=player_input, computer_response=computer_response, countries=countries)
+    return render_template('index.html', message=message, used_countries=used, countries=countries)
 
 @app.route('/reset')
 def reset():
