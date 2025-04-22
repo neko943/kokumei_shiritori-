@@ -38,13 +38,8 @@
         <p>あなたの入力: {{ player_input }}</p>
     {% endif %}
 
-    {% if computer_response %}
-        <p>コンピュータの応答: {{ computer_response }}</p>
-    {% endif %}
-    {% if player_input %}
-        <p>あなたの入力: {{ player_input }}</p>
-    {% endif %}
-    <button type="button" onclick="toggleCountryList()">国名リストを表示</button>
+    
+    <button type="button" id="toggle-btn">国名リストを表示</button>
 
 <div id="country-list" style="display: none; margin-top: 10px;">
     <ul>
@@ -55,15 +50,16 @@
 </div>
 
 <script>
-function toggleCountryList() {
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleButton = document.getElementById("toggle-btn");
     const list = document.getElementById("country-list");
-    if (list.style.display === "none") {
-        list.style.display = "block";
-    } else {
-        list.style.display = "none";
-    }
-}
+
+    toggleButton.addEventListener("click", function () {
+        list.style.display = list.style.display === "none" ? "block" : "none";
+    });
+});
 </script>
+
 
     <h2>使用済みの国名</h2>
     {% if used_countries %}
