@@ -38,6 +38,22 @@
         <p>あなたの入力: {{ player_input }}</p>
     {% endif %}
 
+       <style>
+        #country-list ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        #country-list li {
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            padding: 4px 8px;
+        }
+    </style>
+
     
     <button type="button" id="toggle-btn">国名リストを表示</button>
 
