@@ -19,31 +19,34 @@
 
     <meta name="twitter:card" content="summary_large_image">
 
-    <!-- 全体スタイル -->
     <style>
         body {
-            text-align: center;
-            font-family: sans-serif;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #fafafa;
+            font-family: sans-serif;
         }
 
-        h1, h2, p, form, ul, button, #country-list {
-            display: inline-block;
-            margin: 12px auto;
-            text-align: left;
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        form, p, h1, h2, ul, button {
+            margin: 10px 0;
         }
 
         input[type="text"] {
             padding: 6px;
-            margin: 8px 0;
             width: 200px;
         }
 
         button {
             padding: 6px 12px;
             margin: 8px 4px;
-            cursor: pointer;
         }
 
         #country-list ul {
@@ -52,6 +55,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
+            justify-content: center;
         }
 
         #country-list li {
@@ -59,54 +63,52 @@
             border-radius: 5px;
             padding: 4px 8px;
         }
-
-        ul {
-            padding-left: 20px;
-        }
     </style>
 </head>
 <body>
-    <h1>国名しりとりbot</h1>
+    <div class="container">
+        <h1>国名しりとりbot</h1>
 
-    <form method="POST">
-        <label for="country">カタカナで国名を入力してください:</label><br>
-        <input type="text" id="country" name="player_input" required>
-        <button type="submit">送信</button>
-    </form>
+        <form method="POST">
+            <label for="country">カタカナで国名を入力してください:</label><br>
+            <input type="text" id="country" name="player_input" required>
+            <button type="submit">送信</button>
+        </form>
 
-    <form action="/reset" method="get">
-        <button type="submit">リセット</button>
-    </form>
+        <form action="/reset" method="get">
+            <button type="submit">リセット</button>
+        </form>
 
-    <p>{{ message }}</p>
+        <p>{{ message }}</p>
 
-    {% if computer_response %}
-        <p>コンピュータの応答: {{ computer_response }}</p>
-    {% endif %}
-    {% if player_input %}
-        <p>あなたの入力: {{ player_input }}</p>
-    {% endif %}
+        {% if computer_response %}
+            <p>コンピュータの応答: {{ computer_response }}</p>
+        {% endif %}
+        {% if player_input %}
+            <p>あなたの入力: {{ player_input }}</p>
+        {% endif %}
 
-    <button type="button" id="toggle-btn">国名リストを表示</button>
+        <button type="button" id="toggle-btn">国名リストを表示</button>
 
-    <div id="country-list" style="display: none; margin-top: 10px;">
-        <ul>
-            {% for country in countries %}
-                <li>{{ country }}</li>
-            {% endfor %}
-        </ul>
+        <div id="country-list" style="display: none; margin-top: 10px;">
+            <ul>
+                {% for country in countries %}
+                    <li>{{ country }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <h2>使用済みの国名</h2>
+        {% if used_countries %}
+            <ul>
+                {% for country in used_countries %}
+                    <li>{{ country }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>まだ国名は使われていません。</p>
+        {% endif %}
     </div>
-
-    <h2>使用済みの国名</h2>
-    {% if used_countries %}
-        <ul>
-            {% for country in used_countries %}
-                <li>{{ country }}</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>まだ国名は使われていません。</p>
-    {% endif %}
 
     <script>
     document.addEventListener("DOMContentLoaded", function () {
