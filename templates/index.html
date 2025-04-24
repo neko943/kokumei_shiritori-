@@ -14,31 +14,38 @@
     <meta property="og:title" content="国名しりとりゲーム">
     <meta property="og:description" content="世界の国名でしりとりをするFlask製Webアプリ。学びながら楽しめる！">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://shiritori-game-ihgf.onrender.com"> <!-- 実際のURLに変更してください -->
-    <meta property="og:image" content="https://your-render-url.onrender.com/static/og-image.png"> <!-- サムネ画像があれば -->
+    <meta property="og:url" content="https://shiritori-game-ihgf.onrender.com">
+    <meta property="og:image" content="https://your-render-url.onrender.com/static/og-image.png">
 
     <meta name="twitter:card" content="summary_large_image">
-</head>
-<body>
-    <h1>国名しりとりbot</h1>
-    <form method="POST">
-        <label for="country">カタカナで国名を入力してください:</label>
-        <input type="text" id="country" name="player_input" required>
-        <button type="submit">送信</button>
-    </form>
-    <form action="/reset" method="get">
-        <button type="submit">リセット</button>
-    </form>
-    <p>{{ message }}</p>
 
-    {% if computer_response %}
-        <p>コンピュータの応答: {{ computer_response }}</p>
-    {% endif %}
-    {% if player_input %}
-        <p>あなたの入力: {{ player_input }}</p>
-    {% endif %}
+    <!-- 全体スタイル -->
+    <style>
+        body {
+            text-align: center;
+            font-family: sans-serif;
+            padding: 20px;
+            background-color: #fafafa;
+        }
 
-       <style>
+        h1, h2, p, form, ul, button, #country-list {
+            display: inline-block;
+            margin: 12px auto;
+            text-align: left;
+        }
+
+        input[type="text"] {
+            padding: 6px;
+            margin: 8px 0;
+            width: 200px;
+        }
+
+        button {
+            padding: 6px 12px;
+            margin: 8px 4px;
+            cursor: pointer;
+        }
+
         #country-list ul {
             list-style: none;
             padding: 0;
@@ -52,30 +59,43 @@
             border-radius: 5px;
             padding: 4px 8px;
         }
-    </style>
 
-    
+        ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>国名しりとりbot</h1>
+
+    <form method="POST">
+        <label for="country">カタカナで国名を入力してください:</label><br>
+        <input type="text" id="country" name="player_input" required>
+        <button type="submit">送信</button>
+    </form>
+
+    <form action="/reset" method="get">
+        <button type="submit">リセット</button>
+    </form>
+
+    <p>{{ message }}</p>
+
+    {% if computer_response %}
+        <p>コンピュータの応答: {{ computer_response }}</p>
+    {% endif %}
+    {% if player_input %}
+        <p>あなたの入力: {{ player_input }}</p>
+    {% endif %}
+
     <button type="button" id="toggle-btn">国名リストを表示</button>
 
-<div id="country-list" style="display: none; margin-top: 10px;">
-    <ul>
-        {% for country in countries %}
-            <li>{{ country }}</li>
-        {% endfor %}
-    </ul>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const toggleButton = document.getElementById("toggle-btn");
-    const list = document.getElementById("country-list");
-
-    toggleButton.addEventListener("click", function () {
-        list.style.display = list.style.display === "none" ? "block" : "none";
-    });
-});
-</script>
-
+    <div id="country-list" style="display: none; margin-top: 10px;">
+        <ul>
+            {% for country in countries %}
+                <li>{{ country }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 
     <h2>使用済みの国名</h2>
     {% if used_countries %}
@@ -87,5 +107,17 @@ document.addEventListener("DOMContentLoaded", function () {
     {% else %}
         <p>まだ国名は使われていません。</p>
     {% endif %}
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleButton = document.getElementById("toggle-btn");
+        const list = document.getElementById("country-list");
+
+        toggleButton.addEventListener("click", function () {
+            list.style.display = list.style.display === "none" ? "block" : "none";
+        });
+    });
+    </script>
 </body>
 </html>
+
