@@ -116,6 +116,35 @@ def normalize_word(word):
         else:
             normalized_chars.append(mapping.get(char, char))
     return ''.join(normalized_chars)
+    
+@app.route("/sitemap.xml", methods=["GET"])
+def sitemap():
+    pages = []
+
+    # 静的に登録するURL一覧（必要に応じて増やす）
+    base_url = "https://shiritori-game-ihgf.onrender.com"  # あなたの Render URL に書き換えてください
+    pages.append({
+        "loc": f"{base_url}/",
+        "lastmod": datetime.utcnow().date().isoformat()
+    })
+    pages.append({
+        "loc": f"{base_url}/result",  # 結果ページなど
+        "lastmod": datetime.utcnow().date().isoformat()
+    })
+
+    # XML 形式で出力
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+
+    for page in pages:
+        xml += "  <url>\n"
+        xml += f"    <loc>{page['loc']}</loc>\n"
+        xml += f"    <lastmod>{page['lastmod']}</lastmod>\n"
+        xml += "  </url>\n"
+
+    xml += "</urlset>"
+
+    return Response(xml, mimetype="application/xml")
 
 @app.before_request
 def initialize_session():
