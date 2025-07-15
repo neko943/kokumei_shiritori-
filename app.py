@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, Response, send_from_directory
 import uuid
+import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "super-secret-key"
@@ -121,16 +123,19 @@ def normalize_word(word):
 def sitemap():
     pages = []
 
-    # 静的に登録するURL一覧（必要に応じて増やす）
-    base_url = "https://shiritori-game-ihgf.onrender.com"  # あなたの Render URL に書き換えてください
+    # ユーザーが指定したRenderのURLを直接使用
+    base_url = "https://shiritori-game-ihgf.onrender.com"
+
+    # 静的に登録するURL一覧。現在のアプリケーションは '/' のみがメインページ
     pages.append({
         "loc": f"{base_url}/",
         "lastmod": datetime.utcnow().date().isoformat()
     })
-    pages.append({
-        "loc": f"{base_url}/result",  # 結果ページなど
-        "lastmod": datetime.utcnow().date().isoformat()
-    })
+    # もし /result ページを削除したのであれば、以下の行も削除してください
+    # pages.append({
+    #     "loc": f"{base_url}/result",
+    #     "lastmod": datetime.utcnow().date().isoformat()
+    # })
 
     # XML 形式で出力
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -145,6 +150,13 @@ def sitemap():
     xml += "</urlset>"
 
     return Response(xml, mimetype="application/xml")
+
+# robots.txt を提供するルート
+@app.route('/robots.txt')
+def robots_txt():
+    # staticフォルダにrobots.txtを配置する必要があります
+    # 例: project_root/static/robots.txt
+    return send_from_directory(app.static_folder, 'robots.txt')
 
 @app.before_request
 def initialize_session():
