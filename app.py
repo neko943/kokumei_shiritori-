@@ -232,7 +232,7 @@ def index():
         # 5. すべての基本ルールをクリアした後に、特殊な勝利条件をチェック
         if player_input in ["スリナム", "ギリシャ"]:
             reset_game()
-            message = f"「{player_input}」を入力したため、あなたの勝ちです！ゲームをリセットします。"
+            message = f"その文字から始まる国はありません。あなたの勝ちです！ゲームをリセットします。"
             return render_template('index.html', message=message, used_countries=[], countries=countries)
 
         # 6. 通常のしりとりルール（「ん」落ち）をチェック
@@ -273,14 +273,14 @@ def index():
         # コンピュータの回答が特殊勝利条件を満たすかチェック
         if computer_response in ["スリナム", "ギリシャ"]:
             reset_game()
-            message = f"PCの回答「{computer_response}」が特殊勝利条件を満たしたため、PCの勝ちです！ゲームをリセットします。"
+            message = f"この文字から始まる国はありません！私の勝ちです！ゲームをリセットします。"
             return render_template('index.html', player_input=player_input_display, computer_response=computer_response_display, message=message, used_countries=[], countries=countries)
         
         # コンピュータの回答が「ン」で終わる場合、コンピュータの負け
         normalized_computer_last_char = normalize_word(computer_response)[-1]
         if normalized_computer_last_char == 'ン':
             reset_game()
-            message = f"PCの回答「{computer_response}」は「ン」で終わるため、私の負けです！ゲームをリセットします。"
+            message = f"「{computer_response}」は「ン」で終わるため、私の負けです！ゲームをリセットします。"
             return render_template('index.html', player_input=player_input_display, computer_response=computer_response_display, message=message, used_countries=[], countries=countries)
         
         used.append(computer_response)
