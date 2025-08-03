@@ -158,50 +158,6 @@ def robots_txt():
     # 例: project_root/static/robots.txt
     return send_from_directory(app.static_folder, 'robots.txt')
 
-@app.before_request
-def initialize_session():
-    if "session_id" not in session:
-        session["session_id"] = str(uuid.uuid4())
-    if session["session_id"] not in game_sessions:
-        game_sessions[session["session_id"]] = {"used_countries": [], "last_syllable": None}
-
-def reset_game():
-    session_id = session["session_id"]
-    game_sessions[session_id] = {"used_countries": [], "last_syllable": None}
-
-def get_computer_response(last_syllable):
-    session_id = session["session_id"]
-    used_countries = game_sessions[session_id]["used_countries"]
-
-    # 優先リスト1
-    if last_syllable in priority_list:
-        preferred = priority_list[last_syllable]
-        if isinstance(preferred, list):
-            for country in preferred:
-                if country not in used_countries:
-                    return country
-        else:
-            if preferred not in used_countries:
-                return preferred
-
-    # 優先リスト2
-    if last_syllable in priority2_list:
-        preferred = priority2_list[last_syllable]
-        if isinstance(preferred, list):
-            for country in preferred:
-                if country not in used_countries:
-                    return country
-        else:
-            if preferred not in used_countries:
-                return preferred
-
-    # 通常検索
-    for country in countries:
-        if country.startswith(last_syllable) and country not in used_countries:
-            return country
-
-    return None
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     session_id = session["session_id"]
@@ -209,6 +165,8 @@ def index():
     used = game_state["used_countries"]
     last_syllable = game_state["last_syllable"]
     message = ""
+    player_input_display = ""
+    computer_response_display = ""
 
     if request.method == 'POST':
         player_input = request.form.get('player_input')
@@ -254,6 +212,7 @@ def index():
             message = f"「{player_input}」は「ン」で終わるため、あなたの負けです！新しいゲームを開始します。"
             return render_template('index.html', message=message, used_countries=[], countries=countries)
 
+        # プレイヤーの入力が最初のターンで、かつPCが続く国を持たない場合
         if last_syllable is None:
             temp_used_for_computer_check = used + [player_input]
             computer_can_respond = get_computer_response(normalized_player_last_char, temp_used_for_computer_check)
@@ -269,32 +228,36 @@ def index():
             used.append(player_input)
             game_state["last_syllable"] = normalized_player_last_char
 
-
+        # ここからコンピュータのターン
+        # コンピュータの回答を取得
         computer_response = get_computer_response(game_state["last_syllable"], used)
         computer_response_display = computer_response
 
-
+        # コンピュータが回答できない場合、プレイヤーの勝ち
         if not computer_response:
             reset_game()
-            message = "その国の最後の文字で始まる国が見つかりません。あなたの勝ちです！"
-            return render_template('index.html', message=message, used_countries=[], countries=countries)
+            message = f"「{game_state['last_syllable']}」で始まる国が見つかりません。あなたの勝ちです！ゲームをリセットします。"
+            return render_template('index.html', player_input=player_input_display, computer_response=computer_response_display, message=message, used_countries=[], countries=countries)
 
+        # コンピュータの回答が特殊勝利条件を満たすかチェック
         if computer_response in ["スリナム", "ギリシャ"]:
             reset_game()
-            message = f"「{normalize_word(computer_response)[-1]}」で始まる国がありません。私の勝ちです！"
-            return render_template('index.html', player_input=player_input, computer_response=computer_response, message=message, used_countries=[], countries=countries)
-
-        if normalize_word(computer_response)[-1] == 'ン':
+            message = f"PCの回答「{computer_response}」が特殊勝利条件を満たしたため、PCの勝ちです！ゲームをリセットします。"
+            return render_template('index.html', player_input=player_input_display, computer_response=computer_response_display, message=message, used_countries=[], countries=countries)
+        
+        # コンピュータの回答が「ン」で終わる場合、コンピュータの負け
+        normalized_computer_last_char = normalize_word(computer_response)[-1]
+        if normalized_computer_last_char == 'ン':
             reset_game()
-            message = "私の負けです！"
-            return render_template('index.html', player_input=player_input, computer_response=computer_response, message=message, used_countries=[], countries=countries)
-
+            message = f"PCの回答「{computer_response}」は「ン」で終わるため、私の負けです！ゲームをリセットします。"
+            return render_template('index.html', player_input=player_input_display, computer_response=computer_response_display, message=message, used_countries=[], countries=countries)
+        
         used.append(computer_response)
-        game_state["last_syllable"] = normalize_word(computer_response)[-1]
+        game_state["last_syllable"] = normalized_computer_last_char
 
         return render_template('index.html',
-                               player_input=player_input,
-                               computer_response=computer_response,
+                               player_input=player_input_display,
+                               computer_response=computer_response_display,
                                message=message,
                                used_countries=used,
                                countries=countries)
@@ -307,6 +270,5 @@ def reset():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
