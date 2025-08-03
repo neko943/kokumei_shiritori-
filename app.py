@@ -269,6 +269,7 @@ def index():
             used.append(player_input)
             game_state["last_syllable"] = normalized_player_last_char
 
+
         computer_response = get_computer_response(game_state["last_syllable"])
 
         if not computer_response:
