@@ -270,7 +270,9 @@ def index():
             game_state["last_syllable"] = normalized_player_last_char
 
 
-        computer_response = get_computer_response(game_state["last_syllable"])
+        computer_response = get_computer_response(game_state["last_syllable"], used)
+        computer_response_display = computer_response
+
 
         if not computer_response:
             reset_game()
