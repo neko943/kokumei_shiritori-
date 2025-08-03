@@ -29,7 +29,7 @@ countries = [
     "ソマリア", "ソロモンショトウ", "タイ", "タジキスタン", "ダイカンミンコク", "タイワン",
     "タンザニア", "チェコ", "チュウカジンミンキョウワコク", "チリ", "チャド", "チュニジア",
     "チョウセンミンシュシュギジンミンキョウワコク",
-    "ツバル", "デンマーク", "トーゴ", "トルクメニスタン", "トルコ", "ドイツ", "トンガ", "ドミニカコク", 
+    "ツバル", "デンマーク", "トーゴ", "トルクメニスタン", "トルコ", "ドイツ", "トンガ", "ドミニカコク",
     "トリニダードトバゴ", "ドミニカキョウワコク", "ナイジェリア", "ナウル", "ナミビア", "ニウエ", "ニッポン",
     "ニカラグア", "ニジェール", "ニュージーランド", "ネパール", "ノルウェー",
     "ハイチ", "パキスタン", "パナマ", "パラグアイ", "パラオ", "バチカンシコク", "バルバドス",
@@ -100,6 +100,9 @@ priority2_list = {
 }
 
 def normalize_word(word):
+    """
+    単語を正規化し、濁音、半濁音、長音符、小文字を処理します。
+    """
     if not word:
         return None
     mapping = {
@@ -108,58 +111,86 @@ def normalize_word(word):
         'ダ': 'タ', 'ヂ': 'チ', 'ヅ': 'ツ', 'デ': 'テ', 'ド': 'ト',
         'バ': 'ハ', 'ビ': 'ヒ', 'ブ': 'フ', 'ベ': 'ヘ', 'ボ': 'ホ',
         'パ': 'ハ', 'ピ': 'ヒ', 'プ': 'フ', 'ペ': 'ヘ', 'ポ': 'ホ',
-        'ェ': 'エ', 'ュ': 'ユ', 'ャ': 'ヤ',
+        'ァ': 'ア', 'ィ': 'イ', 'ゥ': 'ウ', 'ェ': 'エ', 'ォ': 'オ',
+        'ャ': 'ヤ', 'ュ': 'ユ', 'ョ': 'ヨ',
+        'ッ': 'ツ'
     }
     normalized_chars = []
     for i, char in enumerate(word):
         if char == 'ー':
             if i > 0:
                 normalized_chars.append(normalized_chars[-1])
+            else:
+                pass
         else:
             normalized_chars.append(mapping.get(char, char))
     return ''.join(normalized_chars)
-    
+
 @app.route("/sitemap.xml", methods=["GET"])
 def sitemap():
     pages = []
-
-    # ユーザーが指定したRenderのURLを直接使用
     base_url = "https://shiritori-game-ihgf.onrender.com"
-
-    # 静的に登録するURL一覧。現在のアプリケーションは '/' のみがメインページ
     pages.append({
         "loc": f"{base_url}/",
         "lastmod": datetime.utcnow().date().isoformat()
     })
-    # もし /result ページを削除したのであれば、以下の行も削除してください
-    # pages.append({
-    #     "loc": f"{base_url}/result",
-    #     "lastmod": datetime.utcnow().date().isoformat()
-    # })
-
-    # XML 形式で出力
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-
     for page in pages:
         xml += "  <url>\n"
         xml += f"    <loc>{page['loc']}</loc>\n"
         xml += f"    <lastmod>{page['lastmod']}</lastmod>\n"
         xml += "  </url>\n"
-
     xml += "</urlset>"
-
     return Response(xml, mimetype="application/xml")
 
-# robots.txt を提供するルート
 @app.route('/robots.txt')
 def robots_txt():
-    # staticフォルダにrobots.txtを配置する必要があります
-    # 例: project_root/static/robots.txt
     return send_from_directory(app.static_folder, 'robots.txt')
+
+def reset_game():
+    session_id = session["session_id"]
+    game_sessions[session_id] = {"used_countries": [], "last_syllable": None}
+
+# この関数が正しく2つの引数を受け取るように定義されています
+def get_computer_response(last_syllable, current_used_countries):
+    # 優先リスト1
+    if last_syllable in priority_list:
+        preferred = priority_list[last_syllable]
+        if isinstance(preferred, list):
+            for country in preferred:
+                if country not in current_used_countries:
+                    return country
+        else:
+            if preferred not in current_used_countries:
+                return preferred
+
+    # 優先リスト2
+    if last_syllable in priority2_list:
+        preferred = priority2_list[last_syllable]
+        if isinstance(preferred, list):
+            for country in preferred:
+                if country not in current_used_countries:
+                    return country
+        else:
+            if preferred not in current_used_countries:
+                return preferred
+
+    # 一般的な国名リスト
+    for country in countries:
+        if country.startswith(last_syllable) and country not in current_used_countries:
+            return country
+
+    return None
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    # セッションの初期化をここで行う
+    if "session_id" not in session:
+        session["session_id"] = str(uuid.uuid4())
+    if session["session_id"] not in game_sessions:
+        game_sessions[session["session_id"]] = {"used_countries": [], "last_syllable": None}
+
     session_id = session["session_id"]
     game_state = game_sessions[session_id]
     used = game_state["used_countries"]
