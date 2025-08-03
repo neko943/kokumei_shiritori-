@@ -212,40 +212,62 @@ def index():
 
     if request.method == 'POST':
         player_input = request.form.get('player_input')
+        player_input_display = player_input
 
-        if player_input not in countries:
-            message = "無効な国名です。"
+        if player_input:
+            player_input = player_input.strip()
+
+        # ここからルールチェックの順番を修正
+        # 1. 入力が空でないかチェック
+        if not player_input:
+            message = "国名を入力してください。"
             return render_template('index.html', message=message, used_countries=used, countries=countries)
 
+        # 2. 国名リストに存在するかチェック (無効な国名かどうかの判定)
+        if player_input not in countries:
+            message = "無効な国名です。リストにないか、誤字脱字があるかもしれません。"
+            return render_template('index.html', message=message, used_countries=used, countries=countries)
+
+        # 3. すでに使用済みかチェック
         if player_input in used:
             message = "その国名はすでに使用されています。"
             return render_template('index.html', message=message, used_countries=used, countries=countries)
 
-        if player_input in ["スリナム", "ギリシャ"]:
-            reset_game()
-            message = f"「{normalize_word(player_input)[-1]}」で始まる国が見つかりません。あなたの勝ちです！"
-            return render_template('index.html', message=message, used_countries=[], countries=countries)
-
-        normalized_last_char = normalize_word(player_input)[-1]
-
-        if last_syllable is None:
-            if normalized_last_char == 'ン':
-                reset_game()
-                message = "あなたの負けです！"
-                return render_template('index.html', message=message, used_countries=[], countries=countries)
-            used.append(player_input)
-            game_state["last_syllable"] = normalized_last_char
-        else:
+        # 4. 通常のしりとりルール（文字のつながり）をチェック
+        # ただし、最初のターン（last_syllableがNone）はスキップ
+        if last_syllable is not None:
             if normalize_word(player_input)[0] != last_syllable:
                 message = f"「{last_syllable}」で始まる国名を入力してください。"
                 return render_template('index.html', message=message, used_countries=used, countries=countries)
 
-            if normalized_last_char == 'ン':
+        # 5. すべての基本ルールをクリアした後に、特殊な勝利条件をチェック
+        if player_input in ["スリナム", "ギリシャ"]:
+            reset_game()
+            message = f"「{player_input}」を入力したため、あなたの勝ちです！ゲームをリセットします。"
+            return render_template('index.html', message=message, used_countries=[], countries=countries)
+
+        # 6. 通常のしりとりルール（「ん」落ち）をチェック
+        normalized_player_last_char = normalize_word(player_input)[-1]
+
+        if normalized_player_last_char == 'ン':
+            reset_game()
+            message = f"「{player_input}」は「ン」で終わるため、あなたの負けです！新しいゲームを開始します。"
+            return render_template('index.html', message=message, used_countries=[], countries=countries)
+
+        if last_syllable is None:
+            temp_used_for_computer_check = used + [player_input]
+            computer_can_respond = get_computer_response(normalized_player_last_char, temp_used_for_computer_check)
+
+            if not computer_can_respond:
                 reset_game()
-                message = "あなたの負けです！"
+                message = f"「{normalized_player_last_char}」から始まる国名はありません。あなたの負けです。ゲームをリセットします。"
                 return render_template('index.html', message=message, used_countries=[], countries=countries)
+            
             used.append(player_input)
-            game_state["last_syllable"] = normalized_last_char
+            game_state["last_syllable"] = normalized_player_last_char
+        else:
+            used.append(player_input)
+            game_state["last_syllable"] = normalized_player_last_char
 
         computer_response = get_computer_response(game_state["last_syllable"])
 
