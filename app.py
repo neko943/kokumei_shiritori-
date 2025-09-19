@@ -182,7 +182,6 @@ def get_computer_response(last_syllable, current_used_countries):
             return country
 
     return None
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     # セッションの初期化をここで行う
