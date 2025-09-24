@@ -146,9 +146,15 @@ def sitemap():
 
 from flask import send_from_directory
 
+from flask import Response
+
 @app.route('/robots.txt')
 def robots_txt():
-    return send_from_directory("static", "robots.txt", mimetype="text/plain")
+    robots_content = """User-agent: *
+Allow: /
+Sitemap: https://shiritori-game-ihgf.onrender.com/sitemap.xml
+"""
+    return Response(robots_content, mimetype="text/plain")
 
 def reset_game():
     session_id = session["session_id"]
