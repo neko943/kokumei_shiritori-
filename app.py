@@ -144,9 +144,11 @@ def sitemap():
     xml += "</urlset>"
     return Response(xml, mimetype="application/xml")
 
+from flask import send_from_directory
+
 @app.route('/robots.txt')
 def robots_txt():
-    return send_from_directory(app.static_folder, 'robots.txt')
+    return send_from_directory("static", "robots.txt", mimetype="text/plain")
 
 def reset_game():
     session_id = session["session_id"]
